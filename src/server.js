@@ -9,6 +9,7 @@ const pool = require("./db");
 const authRoutes = require("./routes/auth");
 const chunksRoutes = require("./routes/chunks");
 const portalRoutes = require("./routes/portal");
+const devicesRoutes = require("./routes/devices");
 
 const app = express();
 app.use(express.json({ limit: "15mb" }));
@@ -24,6 +25,7 @@ app.get("/health", (req, res) => res.json({ ok: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/chunks", chunksRoutes);
 app.use("/api/portal", portalRoutes);
+app.use("/api/devices", devicesRoutes);
 
 app.use((req, res) => res.status(404).json({ error: "مسار غير موجود" }));
 app.use((err, req, res, next) => {
