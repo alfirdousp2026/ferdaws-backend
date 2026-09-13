@@ -32,3 +32,12 @@ CREATE TABLE IF NOT EXISTS portals (
   data         JSONB NOT NULL DEFAULT '{}'::jsonb,
   updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+CREATE TABLE IF NOT EXISTS devices (
+  company_id   UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  device_id    TEXT NOT NULL,
+  name         TEXT NOT NULL DEFAULT '',
+  last_seen    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (company_id, device_id)
+);
