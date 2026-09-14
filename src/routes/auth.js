@@ -8,7 +8,7 @@ const router = express.Router();
 
 function signToken(user) {
   return jwt.sign(
-    { userId: user.id, companyId: user.company_id, email: user.email },
+    { userId: user.id, companyId: user.company_id, email: user.email, tokenVersion: user.token_version || 1 },
     process.env.JWT_SECRET,
     { expiresIn: "90d" }
   );
@@ -34,7 +34,7 @@ router.post("/register-company", async (req, res) => {
     let userResult;
     try {
       userResult = await client.query(
-        "INSERT INTO sync_users (company_id, email, password_hash, display_name) VALUES ($1,$2,$3,$4) RETURNING id, company_id, email, display_name",
+        "INSERT INTO sync_users (company_id, email, password_hash, display_name) VALUES ($1,$2,$3,$4) RETURNING id, company_id, email, display_name, token_version",
         [company.id, String(email).trim().toLowerCase(), passwordHash, displayName || ""]
       );
     } catch (e) {
@@ -102,6 +102,16 @@ router.get("/me", requireAuth, async (req, res) => {
   );
   if (result.rows.length === 0) return res.status(401).json({ error: "المستخدم غير موجود" });
   res.json({ companyId: req.companyId, ...result.rows[0] });
+});
+
+router.post("/logout-everywhere", requireAuth, async (req, res) => {
+  try {
+    await pool.query("UPDATE sync_users SET token_version = token_version + 1 WHERE id = $1", [req.userId]);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "تعذّر قطع الاتصال عن باقي الأجهزة" });
+  }
 });
 
 module.exports = router;
