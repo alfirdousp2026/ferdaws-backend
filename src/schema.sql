@@ -12,9 +12,11 @@ CREATE TABLE IF NOT EXISTS sync_users (
   email          TEXT NOT NULL UNIQUE,
   password_hash  TEXT NOT NULL,
   display_name   TEXT,
+  token_version  INTEGER NOT NULL DEFAULT 1,
   created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_sync_users_company ON sync_users(company_id);
+ALTER TABLE sync_users ADD COLUMN IF NOT EXISTS token_version INTEGER NOT NULL DEFAULT 1;
 
 CREATE TABLE IF NOT EXISTS chunks (
   company_id   UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
